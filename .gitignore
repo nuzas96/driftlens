@@ -1,0 +1,16 @@
+# Local tooling binaries
+tools/bin/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

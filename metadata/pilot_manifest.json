@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "project": "DriftLens",
+  "purpose": "Phase 1 verified positive baseline evaluation",
+  "sigmahq_commit": "16eb58704e941956d29b1a27da6f967c5525a9bb",
+  "thor_config_source": "SigmaHQ/sigma tests/thor.yml",
+  "evtx_checker": {
+    "name": "evtx-sigma-checker",
+    "version": "v0.8.5",
+    "windows_download_url": "https://github.com/NextronSystems/evtx-baseline/releases/download/v0.8.5/evtx-sigma-checker-win",
+    "windows_sha256": "813fdd73e93dae4659467fd6942861902165b0f92b52daee51412bedce08be61"
+  },
+  "rules": [
+    {
+      "slug": "certutil_encode",
+      "title": "File Encoded To Base64 Via Certutil.EXE",
+      "id": "e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a",
+      "logsource": "process_creation",
+      "sysmon_event_id": 1,
+      "rule_path": "rules/proc_creation_win_certutil_encode.yml",
+      "evtx_path": "dataset/source/sigmahq/certutil_encode/e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a.evtx",
+      "json_path": "dataset/source/sigmahq/certutil_encode/e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a.json",
+      "info_path": "dataset/source/sigmahq/certutil_encode/info.yml",
+      "expected_match_count": 1
+    },
+    {
+      "slug": "powershell_frombase64string",
+      "title": "Base64 Encoded PowerShell Command Detected",
+      "id": "e32d4572-9826-4738-b651-95fa63747e8a",
+      "logsource": "process_creation",
+      "sysmon_event_id": 1,
+      "rule_path": "rules/proc_creation_win_powershell_frombase64string.yml",
+      "evtx_path": "dataset/source/sigmahq/powershell_frombase64string/e32d4572-9826-4738-b651-95fa63747e8a.evtx",
+      "json_path": "dataset/source/sigmahq/powershell_frombase64string/e32d4572-9826-4738-b651-95fa63747e8a.json",
+      "info_path": "dataset/source/sigmahq/powershell_frombase64string/info.yml",
+      "expected_match_count": 1
+    },
+    {
+      "slug": "renamed_binary",
+      "title": "Potential Defense Evasion Via Rename Of Highly Relevant Binaries",
+      "id": "0ba1da6d-b6ce-4366-828c-18826c9de23e",
+      "logsource": "process_creation",
+      "sysmon_event_id": 1,
+      "rule_path": "rules/proc_creation_win_renamed_binary_highly_relevant.yml",
+      "evtx_path": "dataset/source/sigmahq/renamed_binary/0ba1da6d-b6ce-4366-828c-18826c9de23e.evtx",
+      "json_path": "dataset/source/sigmahq/renamed_binary/0ba1da6d-b6ce-4366-828c-18826c9de23e.json",
+      "info_path": "dataset/source/sigmahq/renamed_binary/info.yml",
+      "expected_match_count": 1
+    },
+    {
+      "slug": "teamviewer_file",
+      "title": "Installation of TeamViewer Desktop",
+      "id": "9711de76-5d4f-4c50-a94f-21e4e8f8384d",
+      "logsource": "file_event",
+      "sysmon_event_id": 11,
+      "rule_path": "rules/file_event_win_install_teamviewer_desktop.yml",
+      "evtx_path": "dataset/source/sigmahq/teamviewer_file/9711de76-5d4f-4c50-a94f-21e4e8f8384d.evtx",
+      "json_path": "dataset/source/sigmahq/teamviewer_file/9711de76-5d4f-4c50-a94f-21e4e8f8384d.json",
+      "info_path": "dataset/source/sigmahq/teamviewer_file/info.yml",
+      "expected_match_count": 1
+    },
+    {
+      "slug": "disable_admin_share",
+      "title": "Disable Administrative Share Creation at Startup",
+      "id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "logsource": "registry_set",
+      "sysmon_event_id": 13,
+      "rule_path": "rules/registry_set_disable_administrative_share.yml",
+      "evtx_path": "dataset/source/sigmahq/disable_admin_share/c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e.evtx",
+      "json_path": "dataset/source/sigmahq/disable_admin_share/c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e.json",
+      "info_path": "dataset/source/sigmahq/disable_admin_share/info.yml",
+      "expected_match_count": 2
+    }
+  ]
+}
