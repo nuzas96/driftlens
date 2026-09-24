@@ -1,0 +1,2 @@
+sigma-cli==3.1.0
+pySigma-backend-golangexpr==1.0.0

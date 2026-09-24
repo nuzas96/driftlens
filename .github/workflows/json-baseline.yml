@@ -1,0 +1,56 @@
+name: JSON Baseline Validation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "rules/**"
+      - "dataset/source/sigmahq/**"
+      - "metadata/pilot_manifest.json"
+      - "src/json_baseline_eval.py"
+      - "requirements-json-eval.txt"
+      - ".github/workflows/json-baseline.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  json-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements-json-eval.txt
+
+      - name: Install pinned Sigma tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-json-eval.txt
+          sigma list targets
+          python -m pip show sigma-cli pySigma-backend-golangexpr
+
+      - name: Download and verify SigmaHQ json_matcher
+        shell: bash
+        run: |
+          mkdir -p tools/bin
+          curl -fsSL             https://github.com/SigmaHQ/json_matcher/releases/download/v0.0.2/json_matcher_v0.0.2             -o tools/bin/json_matcher
+          echo "abd279e669a04f63db2bb505efc94e36be79d740aec5221b3547b53551966368  tools/bin/json_matcher" | sha256sum -c -
+          chmod +x tools/bin/json_matcher
+
+      - name: Run DriftLens JSON baseline evaluation
+        run: |
+          python src/json_baseline_eval.py --matcher tools/bin/json_matcher
+
+      - name: Upload JSON baseline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: driftlens-json-baseline-evidence
+          path: results/json_baseline/json_baseline_results.json
+          if-no-files-found: error
