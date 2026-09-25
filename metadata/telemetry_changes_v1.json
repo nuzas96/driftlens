@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "catalog_id": "phase1-telemetry-changes-v1",
+  "baseline_profile": "sigma-logical-fields-v1",
+  "purpose": "Controlled, documented telemetry changes for the five-rule Phase 1 DriftLens pilot",
+  "classification_rule": {
+    "affected": "verified baseline TP + valid change + same ground truth + changed telemetry FN",
+    "unaffected": "verified baseline TP + valid change + same ground truth + changed telemetry TP",
+    "invalid": "valid-drift gate failure; cannot support an affected-rule claim"
+  },
+  "cases": [
+    {
+      "id": "SC-CERT-01",
+      "rule_id": "e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a",
+      "slug": "certutil_encode",
+      "category": "field_schema_change",
+      "operation": "move_field",
+      "source_field": "CommandLine",
+      "target_field": "process.command_line",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Sigma field-name mappings and Elastic ECS process.command_line",
+        "references": [
+          "https://sigmahq.io/docs/digging-deeper/pipelines.html",
+          "https://www.elastic.co/docs/reference/ecs/ecs-process"
+        ]
+      }
+    },
+    {
+      "id": "SC-PS-01",
+      "rule_id": "e32d4572-9826-4738-b651-95fa63747e8a",
+      "slug": "powershell_frombase64string",
+      "category": "field_schema_change",
+      "operation": "move_field",
+      "source_field": "CommandLine",
+      "target_field": "process.command_line",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Sigma field-name mappings and Elastic ECS process.command_line",
+        "references": [
+          "https://sigmahq.io/docs/digging-deeper/pipelines.html",
+          "https://www.elastic.co/docs/reference/ecs/ecs-process"
+        ]
+      }
+    },
+    {
+      "id": "SC-REN-01",
+      "rule_id": "0ba1da6d-b6ce-4366-828c-18826c9de23e",
+      "slug": "renamed_binary",
+      "category": "field_schema_change",
+      "operation": "move_field",
+      "source_field": "OriginalFileName",
+      "target_field": "process.pe.original_file_name",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Elastic ECS PE original file name normalization",
+        "references": [
+          "https://www.elastic.co/docs/reference/ecs/ecs-pe"
+        ]
+      }
+    },
+    {
+      "id": "SC-TV-01",
+      "rule_id": "9711de76-5d4f-4c50-a94f-21e4e8f8384d",
+      "slug": "teamviewer_file",
+      "category": "field_schema_change",
+      "operation": "move_field",
+      "source_field": "TargetFilename",
+      "target_field": "file.path",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Elastic ECS file.path is the full file path including filename",
+        "references": [
+          "https://www.elastic.co/docs/reference/ecs/ecs-file"
+        ]
+      }
+    },
+    {
+      "id": "SC-REG-01",
+      "rule_id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "slug": "disable_admin_share",
+      "category": "field_schema_change",
+      "operation": "move_field",
+      "source_field": "TargetObject",
+      "target_field": "registry.path",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Elastic ECS registry.path is the full registry path",
+        "references": [
+          "https://www.elastic.co/docs/reference/ecs/ecs-registry"
+        ]
+      }
+    },
+    {
+      "id": "MT-CERT-01",
+      "rule_id": "e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a",
+      "slug": "certutil_encode",
+      "category": "missing_telemetry",
+      "operation": "remove_field",
+      "source_field": "CommandLine",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Models downstream parser/intermediary loss of a rule-critical field; raw SigmaHQ source remains unchanged",
+        "references": [
+          "https://learn.microsoft.com/en-us/azure/sentinel/normalization-develop-parsers"
+        ]
+      }
+    },
+    {
+      "id": "MT-REN-01",
+      "rule_id": "0ba1da6d-b6ce-4366-828c-18826c9de23e",
+      "slug": "renamed_binary",
+      "category": "missing_telemetry",
+      "operation": "remove_field",
+      "source_field": "OriginalFileName",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "The locked Sigma rule explicitly documents a false-negative case when OriginalFileName is absent",
+        "references": [
+          "rules/proc_creation_win_renamed_binary_highly_relevant.yml"
+        ]
+      }
+    },
+    {
+      "id": "MT-REG-01",
+      "rule_id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "slug": "disable_admin_share",
+      "category": "missing_telemetry",
+      "operation": "remove_field",
+      "source_field": "Details",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "Models downstream loss of registry value data while preserving the same registry activity",
+        "references": [
+          "https://learn.microsoft.com/en-us/azure/sentinel/normalization-schema-registry-event"
+        ]
+      }
+    },
+    {
+      "id": "VF-REG-01",
+      "rule_id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "slug": "disable_admin_share",
+      "category": "value_format_change",
+      "operation": "replace_exact_value",
+      "source_field": "Details",
+      "from_value": "DWORD (0x00000000)",
+      "to_value": "0",
+      "semantic_equivalence": "registry_numeric",
+      "hypothesis": "detection_may_degrade",
+      "grounding": {
+        "basis": "ECS represents numeric REG_DWORD/REG_QWORD data using decimal representation",
+        "references": [
+          "https://www.elastic.co/docs/reference/ecs/ecs-registry"
+        ]
+      }
+    },
+    {
+      "id": "VF-REG-02",
+      "rule_id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "slug": "disable_admin_share",
+      "category": "value_format_change",
+      "operation": "replace_prefix",
+      "source_field": "TargetObject",
+      "from_prefix": "HKLM\\",
+      "to_prefix": "HKEY_LOCAL_MACHINE\\",
+      "semantic_equivalence": "registry_hive_alias",
+      "hypothesis": "detection_may_remain_robust",
+      "grounding": {
+        "basis": "HKLM is the abbreviated representation of HKEY_LOCAL_MACHINE; registry normalization may standardize root names",
+        "references": [
+          "https://learn.microsoft.com/en-us/azure/sentinel/normalization-schema-registry-event"
+        ]
+      }
+    },
+    {
+      "id": "CTRL-CERT-01",
+      "rule_id": "e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a",
+      "slug": "certutil_encode",
+      "category": "non_impact_control",
+      "operation": "remove_field",
+      "source_field": "Company",
+      "hypothesis": "detection_should_remain",
+      "grounding": {
+        "basis": "Company is present in the baseline event but is not referenced by this locked rule",
+        "references": [
+          "rules/proc_creation_win_certutil_encode.yml"
+        ]
+      }
+    },
+    {
+      "id": "CTRL-PS-01",
+      "rule_id": "e32d4572-9826-4738-b651-95fa63747e8a",
+      "slug": "powershell_frombase64string",
+      "category": "non_impact_control",
+      "operation": "remove_field",
+      "source_field": "Hashes",
+      "hypothesis": "detection_should_remain",
+      "grounding": {
+        "basis": "Hashes is present in the baseline event but is not referenced by this locked rule",
+        "references": [
+          "rules/proc_creation_win_powershell_frombase64string.yml"
+        ]
+      }
+    },
+    {
+      "id": "CTRL-REN-01",
+      "rule_id": "0ba1da6d-b6ce-4366-828c-18826c9de23e",
+      "slug": "renamed_binary",
+      "category": "non_impact_control",
+      "operation": "remove_field",
+      "source_field": "FileVersion",
+      "hypothesis": "detection_should_remain",
+      "grounding": {
+        "basis": "FileVersion is present in the baseline event but is not referenced by this locked rule",
+        "references": [
+          "rules/proc_creation_win_renamed_binary_highly_relevant.yml"
+        ]
+      }
+    },
+    {
+      "id": "CTRL-TV-01",
+      "rule_id": "9711de76-5d4f-4c50-a94f-21e4e8f8384d",
+      "slug": "teamviewer_file",
+      "category": "non_impact_control",
+      "operation": "remove_field",
+      "source_field": "Image",
+      "hypothesis": "detection_should_remain",
+      "grounding": {
+        "basis": "Image is present in the baseline event but is not referenced by this locked rule",
+        "references": [
+          "rules/file_event_win_install_teamviewer_desktop.yml"
+        ]
+      }
+    },
+    {
+      "id": "CTRL-REG-01",
+      "rule_id": "c7dcacd0-cc59-4004-b0a4-1d6cdebe6f3e",
+      "slug": "disable_admin_share",
+      "category": "non_impact_control",
+      "operation": "remove_field",
+      "source_field": "Image",
+      "hypothesis": "detection_should_remain",
+      "grounding": {
+        "basis": "Image is present in both baseline events but is not referenced by this locked rule",
+        "references": [
+          "rules/registry_set_disable_administrative_share.yml"
+        ]
+      }
+    }
+  ]
+}

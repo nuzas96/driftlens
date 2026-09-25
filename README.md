@@ -2,118 +2,92 @@
 
 FYP: **Development of an Agentic Artificial Intelligence System for Repairing and Validating Detection Rules Affected by Telemetry Changes**
 
-## Phase 1 methodology checkpoint
+## Current Phase 1 checkpoint
 
-The Phase 1 pilot uses five SigmaHQ rules and their official regression artifacts pinned to:
+The five-rule pilot is pinned to SigmaHQ commit:
 
 `16eb58704e941956d29b1a27da6f967c5525a9bb`
 
-The raw EVTX baseline is already verified **PASS 5/5** using the SigmaHQ-style EVTX path:
+Verified baselines:
 
-**evtx-sigma-checker v0.8.5 + pinned THOR log-source configuration**
+- Raw EVTX baseline: **PASS 5/5**
+- Structured JSON baseline: **PASS 5/5**
 
-The next gate is an independent structured-telemetry baseline using the same JSON evaluation path that will later be reused for controlled telemetry-change experiments.
+The JSON path uses `sigma-cli==3.1.0`, `pySigma-backend-golangexpr==1.0.0`, and SHA256-verified SigmaHQ `json_matcher v0.0.2`.
 
-## Locked Phase 1 implementation order
-
-1. Create repository/folder structure. **Complete**
-2. Lock five representative Sigma pilot rules. **Complete**
-3. Import authoritative SigmaHQ EVTX/JSON regression artifacts. **Complete**
-4. Build deterministic EVTX baseline evaluation harness. **Complete**
-5. Verify all five rules against official EVTX positive baselines. **PASS 5/5**
-6. Build structured JSON/Sigma baseline evaluation path. **Implemented**
-7. Verify all five feasible pilot baselines through the JSON path. **Current gate**
-8. Define documented machine-readable controlled telemetry changes.
-9. Run paired baseline-versus-change evaluation.
-10. Generate affected-rule evidence records.
-11. Add agentic AI diagnosis and candidate repair.
-12. Independently validate repaired rules and retain human approval evidence.
-
-## EVTX baseline harness
-
-### Install the pinned checker
-
-From PowerShell at the repository root:
-
-```powershell
-.\tools\setup_baseline_checker.ps1
-```
-
-### Run the EVTX baseline
-
-```powershell
-python .\src\baseline_eval.py
-```
-
-Verified result:
+## Phase 1 flow
 
 ```text
-Overall: PASS (5/5)
+Official SigmaHQ EVTX / JSON
+        ↓
+Sigma logical-field baseline profile
+        ↓
+Verified baseline
+        ↓
+Documented controlled telemetry change
+        ↓
+Valid-drift gate
+        ↓
+Same original Sigma rule + same evaluator
+        ↓
+Baseline TP vs changed-telemetry result
+        ↓
+Affected / Unaffected evidence
 ```
 
-Evidence:
+AI diagnosis and repair deliberately come **after** affected-rule evidence exists.
 
-`results/baseline/baseline_results.json`
+## Controlled telemetry-change catalogue
 
-## Structured JSON baseline
+`metadata/telemetry_changes_v1.json` contains 15 paired pilot cases:
 
-The JSON baseline uses:
+- 5 field/schema changes
+- 3 missing-telemetry cases
+- 2 value-format/representation changes
+- 5 non-impact controls
 
-- `sigma-cli==3.1.0`
-- `pySigma-backend-golangexpr==1.0.0`
-- SigmaHQ `json_matcher v0.0.2`
+Cases are not pre-labelled as affected. Classification is measured:
 
-The matcher release is SHA256-verified in CI.
+- baseline TP → changed FN after a valid transformation = **AFFECTED**
+- baseline TP → changed TP after a valid transformation = **UNAFFECTED**
+- valid-drift gate failure = **INVALID_DRIFT** and cannot support an affected-rule claim
 
-### Telemetry profile v1
+The catalogue uses documented field/value representations where appropriate (Sigma mappings, ECS, and Microsoft ASIM) and keeps the raw SigmaHQ source artifacts unchanged.
 
-The official SigmaHQ JSON representation stores Windows event detection fields under:
+## Core implementation
 
-`Event.EventData`
+- `src/json_eval_core.py` — shared Sigma JSON evaluation path
+- `src/json_baseline_eval.py` — structured baseline verifier
+- `src/telemetry_transform.py` — deterministic transformation runner
+- `src/valid_drift_gate.py` — validates transformation causality/integrity
+- `src/drift_eval.py` — paired baseline-vs-change evaluation and classification
+- `tests/test_telemetry_changes.py` — transformation/gate tests
 
-For Phase 1, DriftLens projects those fields into a stable **Sigma logical-field contract** without changing their values:
+## Reproducibility rules
 
-```text
-Event.EventData.CommandLine   -> CommandLine
-Event.EventData.Image         -> Image
-Event.EventData.TargetObject  -> TargetObject
-Event.EventData.Details       -> Details
-...
-```
+For every paired experiment DriftLens retains:
 
-Selected system context such as `EventID`, `Channel`, `Computer`, and provider name is retained.
+- source rule and SigmaHQ provenance
+- source JSON hash
+- baseline and changed event-stream hashes
+- exact transformation ID and evidence
+- valid-drift gate result
+- baseline and changed match indexes/counts
+- per-event TP/FN transition
+- pinned evaluator/tool versions
 
-This projection is the baseline telemetry contract, not a drift transformation.
+Generated variants are experimental outputs and must never be described as original SigmaHQ telemetry.
 
-### Run path
+## CI
 
-The JSON baseline is executed automatically by:
+`.github/workflows/json-baseline.yml` verifies the structured baseline.
 
-`.github/workflows/json-baseline.yml`
+`.github/workflows/drift-pilot.yml` runs unit tests, re-verifies the JSON baseline, runs all 15 paired experiments, and uploads:
 
-The evaluator:
+`results/drift_pilot/`
 
-`src/json_baseline_eval.py`
-
-compiles each original Sigma rule to `golang_expr` and evaluates the canonical event(s) with SigmaHQ `json_matcher`.
-
-Evidence produced by CI:
-
-`results/json_baseline/json_baseline_results.json`
-
-The workflow uploads this report as an artifact; it does **not** automatically commit generated evidence.
-
-## Pilot manifest
-
-`metadata/pilot_manifest.json` is the source of truth for the Phase 1 rule-to-telemetry pairing, expected match counts, pinned upstream commit, and baseline provenance.
-
-## Dataset provenance
-
-- `.evtx`: official SigmaHQ raw regression artifact used for raw baseline execution.
-- `.json`: official SigmaHQ structured event representation.
-- `info.yml`: upstream SigmaHQ regression metadata.
-- Generated telemetry-change variants will be stored separately and must never be described as original SigmaHQ telemetry.
+as a workflow artifact. Generated pilot evidence is **not automatically committed**.
 
 ## Scope guard
 
-DriftLens models telemetry/parser/normalization changes as experimental context. Its primary repair target remains the affected **Sigma detection rule/detection content**, consistent with the approved FYP proposal.
+DriftLens models telemetry/parser/normalization changes as experimental context. The primary AI repair target remains the affected **Sigma detection rule / detection content**, consistent with the approved FYP proposal.
