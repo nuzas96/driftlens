@@ -166,12 +166,9 @@ def run_matcher(
         else:
             test_type = "ndjson"
             event_path = temp / "events.ndjson"
-            serialized = (
-                "\n".join(
-                    json.dumps(e, ensure_ascii=False, separators=(",", ":"))
-                    for e in events
-                )
-                + "\n"
+            serialized = "\n".join(
+                json.dumps(e, ensure_ascii=False, separators=(",", ":"))
+                for e in events
             ).encode("utf-8")
 
         event_path.write_bytes(serialized)
