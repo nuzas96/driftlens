@@ -15,6 +15,7 @@ on:
       - "src/drift_eval.py"
       - "src/feasibility_spike.py"
       - "src/risk_audit.py"
+      - "src/d0_ceiling_audit.py"
       - "tests/test_telemetry_changes.py"
       - "requirements-json-eval.txt"
       - ".github/workflows/drift-pilot.yml"
@@ -63,6 +64,9 @@ jobs:
 
       - name: F1 candidate source verification and F2-F3 risk audit
         run: python src/risk_audit.py --matcher tools/bin/json_matcher
+
+      - name: Audit D0 parser ceiling using seen development cases
+        run: python src/d0_ceiling_audit.py --matcher tools/bin/json_matcher
 
       - name: Upload development feasibility report
         if: always()
