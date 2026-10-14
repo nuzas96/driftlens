@@ -13,6 +13,7 @@ on:
       - "src/telemetry_transform.py"
       - "src/valid_drift_gate.py"
       - "src/drift_eval.py"
+      - "src/feasibility_spike.py"
       - "tests/test_telemetry_changes.py"
       - "requirements-json-eval.txt"
       - ".github/workflows/drift-pilot.yml"
@@ -55,6 +56,17 @@ jobs:
 
       - name: Run paired telemetry-change pilot
         run: python src/drift_eval.py --matcher tools/bin/json_matcher
+
+      - name: Run development-only S1-S3 feasibility spike
+        run: python src/feasibility_spike.py --matcher tools/bin/json_matcher
+
+      - name: Upload development feasibility report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: driftlens-development-feasibility
+          path: results/feasibility_spike/
+          if-no-files-found: warn
 
       - name: Upload drift-pilot evidence
         if: always()
