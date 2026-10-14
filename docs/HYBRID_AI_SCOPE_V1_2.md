@@ -80,22 +80,23 @@ Allowed read-only evidence tools, conceptual API:
 - test_candidate_in_DEV_positive_and_benign_only(...)
 
 Disallowed for AI/D0 candidate prompts: experimental transformation operation, exact from/to answer, gold cause, true repairability, private oracle labels, final held-out test verdict/metrics, revealing file path labels, or hints derived from hidden gold data.
-All methods receive the same **permitted** data and fair budgets. D0 may access the same evidence; initial first-attempt comparisons must use a common materialized evidence packet. Tools used for sequential evidence acquisition must be separately logged and resource-counted.
+**FAIR EVIDENCE RULE:** L1 (one-shot) receives the COMPLETE case-specific admissible evidence bundle UPFRONT. A2 can retrieve the SAME evidence from its fixed read-only tool catalogue; neither may receive privileged oracle information. Strong D0 has the same permitted information/schema references. Freeze the per-case evidence catalogue, **maximum bundle size**, overflow/truncation/exclusion policy, and query/call budgets before experiments; no silent withholding of relevant facts from L1. If bundle overflow prevents the promised complete evidence, declare and handle that case under the pre-registered rule rather than reporting an equal-evidence comparison. Log A2 retrieval cost and first-attempt versus multi-attempt workflow budgets separately.
 
 ## Evaluation contract
 - D0 strong deterministic baseline (not deliberately broken)
 - L1 one-shot LLM (one candidate)
 - A2 bounded tool-using Agentic AI (at most 3 TOTAL attempts on development: initial+2)
 - Hybrid D0->A2 in operational routing, evaluated separately
-- G1 schema; G2 semantics/no fabrication; G3 DEV positive replay; G4 DEV independent benign replay; G5 unchanged Sigma+audit
-- All candidate strategies frozen BEFORE terminal held-out. No scored final test feedback for AI refinement.
+- G1 schema; G2 semantics/no fabrication; G3 DEV positive replay; G4 ZERO NEW rule-window matches on PREDECLARED accurately labelled DEV benign windows relative to the unchanged original Sigma rule **without the candidate adapter on the corresponding changed benign telemetry**; G5 unchanged Sigma+audit. Record pre-existing baseline benign matches/false positives separately.
+- DEV_ACCEPTED requires PASS on EVERY mandatory gate G1–G5. A missing/failed/inconclusive mandatory gate MUST PREVENT acceptance (INCONCLUSIVE or REJECTED). No 'available gates only' exceptions. Candidates, scope and parameters are frozen BEFORE terminal held-out; final scored results are never fed back into refinement. A DEV_ACCEPTED candidate is NOT yet a held-out validated recovery.
 - Report root-cause affected denominator separately from no-impact controls; safe recovery separately from abstention; paired positive/benign rule-window outcomes; costs/runtime.
-- No assumption that A2 beats D0. Successful negative result is still valid, but do not claim demonstrated AI contribution before testing.
+- NO case-specialized/answer-leaking adapters: the transformation MUST apply consistently within declared source/rule scope and MUST NOT branch on opaque case IDs, positive-event values/signatures, expected labels, hidden oracle mapping or held-out outcomes. Identical frozen mapping/logic is applied to positive and benign windows in development and final evaluation.
+- No assumption that A2 beats D0. A legitimate negative result is still valid, but do not claim demonstrated AI advantage before testing.
 
 ## Scope guard and evidence gate
 Working targets unchanged: 10 rules, 30 case configurations (10 relocation, 6 essential-field loss, 4 value representation, 10 nonimpact), 200 held-out BASE rule-windows (10 positive + 10 benign per rule) pending provenance feasibility.
 Source-positive smoke tests: 10/10 rule candidates now runnable (five original, five pinned external CI); source/session independence and final 30 cases NOT established.
-Only independently evidenced, realistic unknown/competing mappings count as genuinely uncertain. Pre-register simple/evidence-needed/unresolvable/nonimpact strata; do not invent hard examples or hide info from D0. If no real evidence-needed cases exist, openly narrow Agentic AI claims and request any scope change before final testing.
+Only independently evidenced, realistic unknown/competing mappings count as genuinely uncertain. Pre-register simple/evidence-needed/unresolvable/nonimpact strata; do not invent hard examples or hide info from D0. COMPOUND DRIFT is an OPTIONAL exploratory extension only if a new multi-change validity gate is separately built/reviewed; it is NOT required for the MVP or a fixed part of the 30-case target. If no real evidence-needed cases exist, openly narrow Agentic AI claims and request any scope change before final testing.
 
 ## Dataset experiment design — cross-cutting strata, NOT fabricated quotas
 Preserve the old **working** 10/30/200 totals until source feasibility and supervisor confirmation; the 30 configurations remain grouped 10 field relocation + 6 essential structured field loss + 4 typed value representation + 10 non-impact controls. In addition, annotate *evidence difficulty* as a SECOND DIMENSION (uniquely known mapping, plausible multi-candidate, supported compound observed changes, genuinely absent current data/abstain). Do not misrepresent them as new disjoint 30-case categories. The 5/4/1/etc. scenario split floated in discussion is just illustrative, NOT approved or source-proven. Compound scenarios require an independently reviewed multi-change validity gate. An official ECS/ASIM schema mapping is useful reference evidence, but alone does not prove which real event field is correct.
